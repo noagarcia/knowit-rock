@@ -14,7 +14,7 @@ fuses them with language and spatio-temporal video representations for reasoning
     
     `git clone https://github.com/noagarcia/knowit-rock.git`
     
-2. Download the KnowIT VQA dataset and save the csv files into `Data/`.
+2. Download the KnowIT VQA dataset and save the csv files in `Data/`.
 
 3. Install dependencies:
     - Python 3.6
@@ -49,15 +49,22 @@ To create the knowledge base:
 sh KnowledgeBase/run.sh
 ```
 
-The files `reason_idx_to_kb*.pckl` and `reason_kb_dict.pckl` containing the instances of the knowledge base are saved into `Data/KB/`.
+The files `reason_idx_to_kb*.pckl` and `reason_kb_dict.pckl` containing the instances of the knowledge base are saved in `Data/KB/`.
 
 ### Knowledge Retrieval
 
-TODO.
+To train the knowledge retrieval module:
+
+```
+sh KnowledgeRetrieval/run.sh
+```
+
+The BertScoring model is saved in `Trainiing/KnowledgeRetrieval/`.
+
 
 ### Video Reasoning
 
-TODO.
+Coming soon..
     
 
 
