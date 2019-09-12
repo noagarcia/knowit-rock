@@ -49,6 +49,7 @@ To create the knowledge base:
 sh KnowledgeBase/run.sh
 ```
 
+The files `reason_idx_to_kb*.pckl` and `reason_kb_dict.pckl` containing the instances of the knowledge base are saved into `Data/KB/`.
 
 ### Knowledge Retrieval
 
