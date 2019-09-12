@@ -59,7 +59,7 @@ To train the knowledge retrieval module:
 sh KnowledgeRetrieval/run.sh
 ```
 
-The BertScoring model is saved in `Trainiing/KnowledgeRetrieval/`.
+The BertScoring model is saved in `Trainining/KnowledgeRetrieval/`.
 
 
 ### Video Reasoning
