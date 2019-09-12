@@ -10,11 +10,11 @@ fuses them with language and spatio-temporal video representations for reasoning
 
 ### Setup
 
-1. Download the KnowIT VQA dataset from and save the csv files in `Data/`.
-
-2. Clone the repository: 
+1. Clone the repository: 
     
     `git clone https://github.com/noagarcia/knowit-rock.git`
+    
+2. Download the KnowIT VQA dataset and save the csv files into `Data/`.
 
 3. Install dependencies:
     - Python 3.6
