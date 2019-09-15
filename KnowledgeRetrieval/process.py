@@ -46,7 +46,6 @@ def get_params():
     parser.add_argument("--eval_batch_size", default=64, type=int)
     parser.add_argument("--max_seq_length", default=128, type=int)
     parser.add_argument("--workers", default=8)
-    parser.add_argument("--do_eval", default=False)
     return parser.parse_args()
 
 
@@ -136,7 +135,7 @@ def train(args, outdir):
         f.write(model_to_save.config.to_json_string())
 
 
-def evaluate(args, outdir):
+def evaluate(args, outdir, split):
 
     # Load Model
     tokenizer = BertTokenizer.from_pretrained(args.bert_model, do_lower_case=args.do_lower_case)
@@ -152,7 +151,7 @@ def evaluate(args, outdir):
         model = torch.nn.DataParallel(model)
 
     # Data
-    evalDataObject = RetrievalDataset(args, split='test', tokenizer=tokenizer)
+    evalDataObject = RetrievalDataset(args, split=split, tokenizer=tokenizer)
     eval_dataloader = torch.utils.data.DataLoader(evalDataObject, batch_size=args.batch_size, shuffle=False,
                                                pin_memory=True, num_workers=args.workers)
 
@@ -186,16 +185,9 @@ def evaluate(args, outdir):
 
         batch_idx += 1
 
-    if args.kb_only_test:
-        utils.save_obj(scores1, outdir + '/test_scores1_testkb.pckl')
-        utils.save_obj(scores2, outdir + '/test_scores2_testkb.pckl')
-        utils.save_obj(idxq, outdir + '/test_idxq_testkb.pckl')
-        utils.save_obj(labels, outdir + '/test_labels_testkb.pckl')
-    else:
-        utils.save_obj(scores1, outdir + '/test_scores1.pckl')
-        utils.save_obj(scores2, outdir + '/test_scores2.pckl')
-        utils.save_obj(idxq, outdir + '/test_idxq.pckl')
-        utils.save_obj(labels, outdir + '/test_labels.pckl')
+    utils.save_obj(scores1, os.path.join(args.data_dir, '/retieval_scores_%s.pckl' % split))
+    utils.save_obj(idxq, os.path.join(args.data_dir, '/retrieval_idxq_%s.pckl' % split))
+    utils.save_obj(labels, os.path.join(args.data_dir, '/retrieval_labels_%s.pckl' % split))
     medR1, recall1, medR2, recall2 = rank(scores1, scores2, idxq, labels)
     logger.info('Accuracy medR {medR:.2f}\t Recall {recall}'.format(medR=medR1, recall=recall1))
 
@@ -211,5 +203,7 @@ if __name__ == "__main__":
         plotter = utils.VisdomLinePlotter(env_name=train_name)
         train(args, outdir)
 
-    if args.do_eval:
-        evaluate(args, outdir)
+    if not os.path.exists(os.path.join(args.data_dir, '/retieval_scores_test.pckl')):
+        evaluate(args, outdir, split='test')
+    if not os.path.exists(os.path.join(args.data_dir, '/retieval_scores_val.pckl')):
+        evaluate(args, outdir, split='val')

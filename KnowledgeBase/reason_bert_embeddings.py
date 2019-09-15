@@ -159,4 +159,5 @@ def compute_embeddings(args):
 if __name__ == "__main__":
 
     args = get_params()
-    compute_embeddings(args)
+    if not os.path.exists(args.embsfile):
+        compute_embeddings(args)

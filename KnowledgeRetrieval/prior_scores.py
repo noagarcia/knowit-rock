@@ -277,6 +277,9 @@ def get_scores(args, split='test'):
         input_file = os.path.join(args.data_dir, args.csvtest)
         filescores = os.path.join(args.data_dir, 'PriorScores/priorscores_answers_test.pckl')
 
+    if not os.path.exists(filescores):
+        return
+
     # Load Model
     tokenizer = BertTokenizer.from_pretrained(args.bert_model, do_lower_case=args.do_lower_case)
     output_model_file = os.path.join(outdir, WEIGHTS_NAME)
