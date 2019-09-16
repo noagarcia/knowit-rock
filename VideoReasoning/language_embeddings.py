@@ -41,9 +41,6 @@ def get_params():
     parser.add_argument("--eval_batch_size", default=32, type=int)
     parser.add_argument('--train_max_seq_len', default=256)
     parser.add_argument('--eval_max_seq_len', default=512)
-    parser.add_argument('--embds_file_test', default='Features/langemb_test.pckl')
-    parser.add_argument('--embds_file_val', default='Features/langemb_val.pckl')
-    parser.add_argument('--embds_file_train', default='Features/langemb_train.pckl')
     parser.add_argument('--topk', default=5)
     return parser.parse_args()
 
@@ -335,7 +332,7 @@ def train(args, outdir):
         f.write(model_to_save.config.to_json_string())
 
 
-def compute_embeddings(args, split):
+def compute_embeddings(args, modeldir, split):
 
     # Compute embeddings only if they have not been computed yet
     filedir = os.path.join(args.data_dir, 'Features/')
@@ -347,8 +344,8 @@ def compute_embeddings(args, split):
 
     # Load model
     tokenizer = BertTokenizer.from_pretrained(args.bert_model, do_lower_case=args.do_lower_case)
-    output_model_file = os.path.join(args.bert_dir, WEIGHTS_NAME)
-    output_config_file = os.path.join(args.bert_dir, CONFIG_NAME)
+    output_model_file = os.path.join(modeldir, WEIGHTS_NAME)
+    output_config_file = os.path.join(modeldir, CONFIG_NAME)
     config = BertConfig(output_config_file)
     model = BertForMultipleChoiceFeatures(config, num_choices=4)
     model.load_state_dict(torch.load(output_model_file))
@@ -398,6 +395,6 @@ if __name__ == "__main__":
     if not os.path.isfile(os.path.join(outdir, 'pytorch_model.bin')):
         train(args, outdir)
 
-    compute_embeddings(args, split = 'train')
-    compute_embeddings(args, split = 'val')
-    compute_embeddings(args, split = 'test')
+    compute_embeddings(args, outdir, split = 'train')
+    compute_embeddings(args, outdir, split = 'val')
+    compute_embeddings(args, outdir, split = 'test')
