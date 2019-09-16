@@ -23,6 +23,7 @@ fuses them with language and spatio-temporal video representations for reasoning
     - sklearn (`conda install -c anaconda scikit-learn`)
     - visdom (`conda install -c conda-forge visdom`)
     - pytorch 0.4.1 (`conda install pytorch=0.4.1 cuda90 -c pytorch`)
+    - torchvision (`conda install torchvision`)
     - pytorch-pretrained-bert 0.4.0 (`conda install -c conda-forge pytorch-pretrained-bert=0.4.0`) 
     
 **Note**: Make sure to install `pytorch-pretrained-bert` instead of its newest version `pytorch-transformers`.
@@ -61,10 +62,33 @@ sh KnowledgeRetrieval/run.sh
 
 The BertScoring model is saved in `Training/KnowledgeRetrieval/`.
 
+**Note**: The matching scores for test and validation sets take a long time to compute.
+ You can download our pre-computed scores from [here](www.noagarciad.com/data/ROCK/rock-retrieval-scores.zip) and save them in `Data/`.
+
 
 ### Video Reasoning
 
-Coming soon..
+1. Download the video frames and save them in `Data/Frames/` directory.
+
+2. Compute language embeddings: `python VideoReasoning/language_embeddings.py`
+
+More coming soon...
+
+- [x] Language embeddings (BertReasoning model)
+- [ ] Image features
+- [ ] Answer prediction for image features
+- [ ] Facial features
+- [ ] Answer prediction for facial features
+- [ ] Concept features
+- [ ] Answer prediction for concept features
+- [ ] Caption features
+- [ ] Answer prediction for caption features
+- [ ] Check retrieval results
+- [ ] Check only language results
+- [ ] Check image results
+- [ ] Check facial results
+- [ ] Check concepts results
+- [ ] Check captions results
     
 
 
