@@ -137,13 +137,13 @@ def read_data(split):
     elif split == 'val':
         input_file = os.path.join(args.data_dir, args.csvval)
         filekbsplit = os.path.join(args.data_dir, 'KB/reason_idx_to_kb_val.pckl')
-        scores = utils.load_obj(os.path.join(args.data_dir, '/retrieval_idxq_val.pckl'))
-        idxq = utils.load_obj(os.path.join(args.data_dir, '/val_idxq.pckl'))
+        scores = utils.load_obj(os.path.join(args.data_dir, 'retrieval_idxq_val.pckl'))
+        idxq = utils.load_obj(os.path.join(args.data_dir, 'retrieval_idxq_val.pckl'))
     elif split == 'test':
         input_file = os.path.join(args.data_dir, args.csvtest)
         filekbsplit = os.path.join(args.data_dir, 'KB/reason_idx_to_kb_test.pckl')
-        scores = utils.load_obj(os.path.join(args.data_dir, '/retieval_scores_test.pckl'))
-        idxq = utils.load_obj(os.path.join(args.data_dir, '/retrieval_idxq_test.pckl'))
+        scores = utils.load_obj(os.path.join(args.data_dir, 'retieval_scores_test.pckl'))
+        idxq = utils.load_obj(os.path.join(args.data_dir, 'retrieval_idxq_test.pckl'))
     df = pd.read_csv(input_file, delimiter='\t')
     logger.info('Loaded file with %d samples' % len(df))
     kb = utils.load_obj(os.path.join(args.data_dir, 'KB/reason_kb_dict.pckl'))
@@ -338,7 +338,7 @@ def compute_embeddings(args, modeldir, split):
     filedir = os.path.join(args.data_dir, 'Features/')
     if not os.path.exists(filedir):
         os.mkdir(filedir)
-    embsfile = os.path.join(filedir, 'Features/language_bert_%s.pckl' % split)
+    embsfile = os.path.join(filedir, 'language_bert_%s.pckl' % split)
     if os.path.exists(embsfile):
         return
 
@@ -377,13 +377,13 @@ def compute_embeddings(args, modeldir, split):
 
         # Save features
         if batch_idx==0:
-            feat = np.expand_dims(features.to('cpu').numpy(), axis=0)
+            feat = features.to('cpu').numpy()
         else:
-            feat = np.concatenate((feat, np.expand_dims(features.to('cpu').numpy(), axis=0)),axis=0)
+            feat = np.concatenate((feat, features.to('cpu').numpy()),axis=0)
 
     # save
-    logger.info('Saving to %s...' % filedir)
-    utils.save_obj(feat, args.data_dir + embsfile)
+    logger.info('Saving to %s...' % embsfile)
+    utils.save_obj(feat, embsfile)
 
 
 if __name__ == "__main__":
