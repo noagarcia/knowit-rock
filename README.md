@@ -68,15 +68,29 @@ The BertScoring model is saved in `Training/KnowledgeRetrieval/`.
 
 ### Video Reasoning
 
+We proposed 4 different models using different visual features extracted from the vidoe clips: `ROCK-image`, `ROCK-concepts`,
+ `ROCK-facial` and `ROCK-caption`.
+
+
+##### Data preparation
+
 1. Download the video frames and save them in `Data/Frames/` directory.
 
 2. Compute language embeddings: `python VideoReasoning/language_embeddings.py`
 
+##### Model training and evaluation
+
+- For `ROCK-image`:
+
+```
+python VideoReasoning/process.py --vision image
+``` 
+
 More coming soon...
 
 - [x] Language embeddings (BertReasoning model)
-- [ ] Image features
-- [ ] Answer prediction for image features
+- [x] Image features
+- [x] Answer prediction for image features
 - [ ] Facial features
 - [ ] Answer prediction for facial features
 - [ ] Concept features
