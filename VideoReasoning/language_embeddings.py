@@ -38,7 +38,7 @@ def get_params():
     parser.add_argument('--csvval', default='data_full_val.csv', help='Dataset val data file')
     parser.add_argument('--csvtest', default='data_full_test_qtypes.csv', help='Dataset test data file')
     parser.add_argument("--batch_size", default=16, type=int)
-    parser.add_argument("--eval_batch_size", default=32, type=int)
+    parser.add_argument("--eval_batch_size", default=1, type=int)
     parser.add_argument('--train_max_seq_len', default=256)
     parser.add_argument('--eval_max_seq_len', default=512)
     parser.add_argument('--topk', default=5)
@@ -377,9 +377,9 @@ def compute_embeddings(args, modeldir, split):
 
         # Save features
         if batch_idx==0:
-            feat = features.to('cpu').numpy()
+            feat = np.expand_dims(features.to('cpu').numpy(), axis=0)
         else:
-            feat = np.concatenate((feat, features.to('cpu').numpy()),axis=0)
+            feat = np.concatenate((feat, np.expand_dims(features.to('cpu').numpy(), axis=0)),axis=0)
 
     # save
     logger.info('Saving to %s...' % embsfile)
