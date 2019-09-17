@@ -249,7 +249,7 @@ def train(args, outdir):
     logger.info('Training...')
     valtrack = 0 # measures patience
     valgrouptrack = 0
-    best_model_name = ''
+    best_val = 0
     for epoch in range(0, args.nepochs):
 
         # Compute a training epoch
