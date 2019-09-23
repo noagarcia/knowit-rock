@@ -68,7 +68,7 @@ The BertScoring model is saved in `Training/KnowledgeRetrieval/`.
 
 ### Video Reasoning
 
-We proposed 4 different models using different visual features extracted from the vidoe clips: `ROCK-image`, `ROCK-concepts`,
+We proposed 4 different models using different visual features extracted from the video clips: `ROCK-image`, `ROCK-concepts`,
  `ROCK-facial` and `ROCK-caption`.
 
 
@@ -78,6 +78,14 @@ We proposed 4 different models using different visual features extracted from th
 
 2. Compute language embeddings: `python VideoReasoning/language_embeddings.py`
 
+3. (For `ROCK-concepts` only) Download the pre-computed visual concepts (77.2GB) from the server 
+(`apas:/home/noagarcia/ROCK-concepts`) and save the file in `Data/Concepts/`. 
+Visual concepts were generated with [this code](https://github.com/peteanderson80/bottom-up-attention).
+
+4. (For `ROCK-facial` only) Download the pre-computed list of faces per frame from 
+[here](www.noagarciad.com/data/ROCK/knowit_knn_cnn_th060.tsv)  (240.3MB) and save the file in `Data/Faces/`. 
+Character faces were recognized with [this code](https://github.com/ageitgey/face_recognition).
+
 ##### Model training and evaluation
 
 - For `ROCK-image`:
@@ -86,15 +94,36 @@ We proposed 4 different models using different visual features extracted from th
 python VideoReasoning/process.py --vision image
 ``` 
 
+- For `ROCK-concepts`:
+
+```
+python VideoReasoning/process.py --vision concepts
+``` 
+
+- For `ROCK-facial`:
+
+```
+python VideoReasoning/process.py --vision facial
+``` 
+
+##### Pretrained weigths
+
+You can download the weights of our pretrained models:
+
+- `ROCK-image` from [here](www.noagarciad.com/data/ROCK/ROCK-image-weights.pth.tar). Save the files in `Training/VideoReasoning/AnswerPrediction_image`.
+
+
+### TODO
+
 More coming soon...
 
 - [x] Language embeddings (BertReasoning model)
 - [x] Image features
 - [x] Answer prediction for image features
-- [ ] Facial features
-- [ ] Answer prediction for facial features
-- [ ] Concept features
-- [ ] Answer prediction for concept features
+- [x] Concept features
+- [x] Answer prediction for concept features
+- [x] Facial features
+- [x] Answer prediction for facial features
 - [ ] Caption features
 - [ ] Answer prediction for caption features
 - [ ] Check retrieval results

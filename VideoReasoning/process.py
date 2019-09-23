@@ -14,7 +14,9 @@ from torchvision import transforms
 
 import utils
 from data_image import KnowITImageData
-from model import VR_ImageFeatures
+from data_concepts import KnowITConceptsData
+from data_facial import KnowITFacesData
+from model import VR_ImageFeatures, VR_ImageBOW
 
 import logging
 logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
@@ -37,6 +39,11 @@ def get_params():
     parser.add_argument('--bertembds_fval', default='Features/language_bert_val.pckl')
     parser.add_argument('--bertembds_ftest', default='Features/language_bert_test.pckl')
     parser.add_argument('--framesdir', default='Data/Frames/')
+    parser.add_argument('--idsframes', default='ids_frames.csv')
+    parser.add_argument('--list_vcps_objs', default='Concepts/objects_vocab.txt')
+    parser.add_argument('--vcpsframes', default='Concepts/knowit_resnet101_faster_rcnn_genome_vcps_all.tsv')
+    parser.add_argument('--list_faces_names', default='Faces/people.txt')
+    parser.add_argument('--facesframes', default='Faces/knowit_knn_cnn_th060.tsv')
 
     # Data params
     parser.add_argument('--vision', default='image', help='image | concepts | facial | caption')
@@ -96,10 +103,10 @@ def accuracy_perclass(df, out, label, index):
     acc_tem = acc_tem / num_tem
     acc_know = acc_know / num_know
 
-    logger.info("Acc visual samples %.03f", acc_vis)
-    logger.info("Acc textual samples %.03f", acc_text)
-    logger.info("Acc temporl samples %.03f", acc_tem)
-    logger.info("Acc knowledge samples %.03f", acc_know)
+    logger.info("Acc visual samples\t%.03f", acc_vis)
+    logger.info("Acc textual samples\t%.03f", acc_text)
+    logger.info("Acc temporal samples\t%.03f", acc_tem)
+    logger.info("Acc knowledge samples\t%.03f", acc_know)
 
 
 def trainEpoch(train_loader, model, criterion, optimizer, epoch):
@@ -184,7 +191,7 @@ def valEpoch(val_loader, model, criterion, epoch):
     return acc
 
 
-def train(args, outdir):
+def train(args, outdir, modelname):
 
     # Set GPU
     n_gpu = torch.cuda.device_count()
@@ -221,6 +228,16 @@ def train(args, outdir):
         trainDataObject = KnowITImageData(args, split='train', transform=train_transforms)
         valDataObject = KnowITImageData(args, split='val', transform=val_transforms)
         model = VR_ImageFeatures(args)
+    elif args.vision == 'concepts':
+        trainDataObject = KnowITConceptsData(args, split='train')
+        valDataObject = KnowITConceptsData(args, split='val')
+        num_concepts = trainDataObject.get_num_objects()
+        model = VR_ImageBOW(args, num_concepts)
+    elif args.vision == 'facial':
+        trainDataObject = KnowITFacesData(args, split='train')
+        valDataObject = KnowITFacesData(args, split='val')
+        num_people = trainDataObject.get_num_people()
+        model = VR_ImageBOW(args, num_people)
 
     if args.device == "cuda":
         model.cuda()
@@ -290,11 +307,11 @@ def train(args, outdir):
                 'curr_val': current_val}
             if not os.path.exists(outdir):
                 os.makedirs(outdir)
-            filename = os.path.join(outdir, 'pytorch_model.bin')
+            filename = os.path.join(outdir, modelname)
             torch.save(state, filename)
 
 
-def evaluate(args, modeldir):
+def evaluate(args, modeldir, modelname):
 
     # Model
     if args.vision == 'image':
@@ -307,13 +324,21 @@ def evaluate(args, modeldir):
         ])
         testDataObject = KnowITImageData(args, split='test', transform=test_transforms)
         model = VR_ImageFeatures(args)
+    elif args.vision == 'concepts':
+        testDataObject = KnowITConceptsData(args, split='test')
+        num_concepts = testDataObject.get_num_objects()
+        model = VR_ImageBOW(args, num_concepts)
+    elif args.vision == 'facial':
+        testDataObject = KnowITFacesData(args, split='test')
+        num_people = testDataObject.get_num_people()
+        model = VR_ImageBOW(args, num_people)
 
     if args.device == "cuda":
         model.cuda()
 
     # Load best model
     logger.info("=> loading checkpoint from '{}'".format(modeldir))
-    checkpoint = torch.load(os.path.join(modeldir, 'pytorch_model.bin'))
+    checkpoint = torch.load(os.path.join(modeldir, modelname))
     model.load_state_dict(checkpoint['state_dict'])
 
     # Data Loader
@@ -352,23 +377,36 @@ def evaluate(args, modeldir):
 
     # Compute Accuracy
     acc = np.sum(out == label)/len(out)
-    logger.info('Model {model}\tOverall Accuracy {acc}'.format(model=args.model_path, acc=acc))
-    df = pd.read_csv('../Data/data_full_test_qtypes.csv', delimiter='\t')
+    logger.info('*' *20)
+    logger.info('Model in %s' %modeldir)
+    df = pd.read_csv('Data/data_full_test_qtypes.csv', delimiter='\t')
     accuracy_perclass(df, out, label, index)
+    logger.info('Overall Accuracy\t%.03f' % acc)
+    logger.info('*' * 20)
+
 
 
 if __name__ == "__main__":
 
+    # Parameters
     args = get_params()
+    assert args.vision in ['image', 'concepts', 'facial'], "Incorrect image features."
 
-    assert args.vision in ['image'], "Incorrect image features."
-
+    # Model name and path
     train_name = 'AnswerPrediction_%s' % (args.vision)
     outdir = os.path.join('Training/VideoReasoning/', train_name)
+    if args.vision == 'image':
+        modelname = 'ROCK-image-weights.pth.tar'
+    elif args.vision == 'concepts':
+        modelname = 'ROCK-concepts-weights.pth.tar'
+    elif args.vision == 'facial':
+        modelname = 'ROCK-concepts-weights.pth.tar'
 
-    if not os.path.isfile(os.path.join(outdir, 'pytorch_model.bin')):
+    # Training
+    if not os.path.isfile(os.path.join(outdir, modelname)):
         global plotter
         plotter = utils.VisdomLinePlotter(env_name=train_name)
-        train(args, outdir)
+        train(args, outdir, modelname)
 
-    evaluate(args, outdir)
+    # Evaluation
+    evaluate(args, outdir, modelname)
