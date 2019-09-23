@@ -165,7 +165,14 @@ def read_data(split):
         # Find knowledge to use
         if split == 'train':
             cluster_pos = idx_to_kb_this[index]
-            reasons = kb[cluster_pos]
+            # reasons = kb[cluster_pos]
+            reason_retrieved = []
+            reason_retrieved.append(kb[cluster_pos])
+            for i in list(range(args.topk-1)):
+                idx = random.randint(0,len(idx_to_kb_this)-1)
+                cluster_rand = idx_to_kb_this[idx]
+                reason_retrieved.append(kb[cluster_rand])
+            reasons = ' '.join(reason_retrieved)
         else:
             idx_retrieved_reason = get_kg_eval(index, scores, idxq, len(kb), k=args.topk)
             reason_retrieved = []
@@ -210,16 +217,6 @@ def convert_to_input(samples, tokenizer, max_seq_length):
             choices_features.append((tokens, input_ids, input_mask, segment_ids))
 
         label = sample.label
-        if index < 1:
-            logger.info("*** Example ***")
-            logger.info("id: {}".format(sample.id))
-            for choice_idx, (tokens, input_ids, input_mask, segment_ids) in enumerate(choices_features):
-                logger.info("choice: {}".format(choice_idx))
-                logger.info("tokens: {}".format(' '.join(tokens)))
-                logger.info("input_ids: {}".format(' '.join(map(str, input_ids))))
-                logger.info("input_mask: {}".format(' '.join(map(str, input_mask))))
-                logger.info("segment_ids: {}".format(' '.join(map(str, segment_ids))))
-
         features.append(
             InputFeatures(
                 sample_id = sample.id,
@@ -386,6 +383,56 @@ def compute_embeddings(args, modeldir, split):
     utils.save_obj(feat, embsfile)
 
 
+def evaluate(args, modeldir):
+
+    args.eval_batch_size = 64
+
+    # Load model
+    tokenizer = BertTokenizer.from_pretrained(args.bert_model, do_lower_case=args.do_lower_case)
+    output_model_file = os.path.join(modeldir, WEIGHTS_NAME)
+    output_config_file = os.path.join(modeldir, CONFIG_NAME)
+    config = BertConfig(output_config_file)
+    model = BertForMultipleChoiceFeatures(config, num_choices=4)
+    model.load_state_dict(torch.load(output_model_file))
+    model.to(args.device)
+
+    # Read data
+    samples_data = read_data('test')
+    data_features = convert_to_input(samples_data, tokenizer, args.eval_max_seq_len)
+    logger.info("***** Computing only language evaluation *****")
+    logger.info("  Num samples = %d", len(samples_data))
+    all_input_ids = torch.tensor(select_field(data_features, 'input_ids'), dtype=torch.long)
+    all_input_mask = torch.tensor(select_field(data_features, 'input_mask'), dtype=torch.long)
+    all_segment_ids = torch.tensor(select_field(data_features, 'segment_ids'), dtype=torch.long)
+    all_labels = torch.tensor([f.label for f in data_features], dtype=torch.long)
+    eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_labels)
+
+    eval_sampler = SequentialSampler(eval_data)
+    eval_dataloader = DataLoader(eval_data, sampler=eval_sampler, batch_size=args.eval_batch_size)
+    model.eval()
+    for batch_idx, inputs in enumerate(tqdm(eval_dataloader, desc="Iteration")):
+        input_ids = inputs[0].to(args.device)
+        input_mask = inputs[1].to(args.device)
+        segment_ids = inputs[2].to(args.device)
+        label_this = inputs[3].to(args.device)
+
+        # Output of the model
+        with torch.no_grad():
+            output = model(input_ids, segment_ids, input_mask, labels=None, feat=False)
+        _, predicted = torch.max(output, 1)
+
+        # Store outpputs
+        if batch_idx==0:
+            out = predicted.data.cpu().numpy()
+            label = label_this.cpu().numpy()
+        else:
+            out = np.concatenate((out,predicted.data.cpu().numpy()),axis=0)
+            label = np.concatenate((label,label_this.cpu().numpy()),axis=0)
+
+    # Compute Accuracy
+    acc = np.sum(out == label)/len(out)
+    logger.info('Accuracy {acc}'.format(model=modeldir, acc=acc))
+
 if __name__ == "__main__":
 
     args = get_params()
@@ -398,3 +445,5 @@ if __name__ == "__main__":
     compute_embeddings(args, outdir, split = 'train')
     compute_embeddings(args, outdir, split = 'val')
     compute_embeddings(args, outdir, split = 'test')
+
+    evaluate(args, outdir)
