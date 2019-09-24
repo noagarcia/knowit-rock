@@ -10,7 +10,7 @@ from pytorch_pretrained_bert.modeling import BertModel
 from pytorch_pretrained_bert.tokenization import BertTokenizer
 
 import sys
-sys.path.insert(0,'..')
+sys.path.insert(0,'.')
 import utils
 
 
