@@ -25,7 +25,6 @@ import re
 
 def get_params():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--split', default='train')
     parser.add_argument("--data_dir", default='Data/', type=str)
     parser.add_argument("--bert_model", default='bert-base-uncased', type=str)
     parser.add_argument("--do_lower_case", default=True)
@@ -42,6 +41,9 @@ def get_params():
     parser.add_argument('--train_max_seq_len', default=256)
     parser.add_argument('--eval_max_seq_len', default=512)
     parser.add_argument('--topk', default=5)
+    parser.add_argument('--use_captions', action='store_true')
+    parser.add_argument('--captionsfile', default='Captions/knowit_captions.csv')
+    parser.add_argument('--numframes', type=int, default=5)
     return parser.parse_args()
 
 
@@ -80,13 +82,14 @@ def cleanhtml(raw_html):
 
 
 class LanguageData(object):
-    def __init__(self, id, q, a1, a2, a3, a4, subs, kg, label):
+    def __init__(self, id, q, a1, a2, a3, a4, subs, kg, label, caption):
         self.id = id
         self.question = q
         self.subtitles = subs
         self.answers = [a1, a2, a3, a4]
         self.kg = kg
         self.label = label
+        self.caption = caption
 
 
 def _truncate_seq_pair_inv(tokens_a, tokens_b, max_length):
@@ -128,7 +131,7 @@ class InputFeatures(object):
         self.label = label
 
 
-def read_data(split):
+def read_data(args, split):
 
     # Load data
     if split == 'train':
@@ -150,6 +153,10 @@ def read_data(split):
     idx_to_kb_this = utils.load_obj(filekbsplit)
     kblist = [values for cluster, values in kb.items()]
 
+    if args.use_captions:
+        df_caps = pd.read_csv(os.path.join(args.data_dir, args.captionsfile), delimiter=',')
+        framepaths = utils.get_frame_paths('', df, numframes=args.numframes)
+
     samples = []
     for index, row in df.iterrows():
 
@@ -161,6 +168,13 @@ def read_data(split):
         a4 = row['answer4']
         subs = cleanhtml(row['subtitle'].replace('<br />', ' ').replace(' - ', ' '))
         label = int(df['idxCorrect'].iloc[index] - 1)
+
+        # Captions
+        caption = ''
+        if args.use_captions:
+            clipaths = framepaths[index]
+            for path in clipaths:
+                caption += df_caps[df_caps['image_files'] == path]['caption'].values[0]
 
         # Find knowledge to use
         if split == 'train':
@@ -181,7 +195,7 @@ def read_data(split):
             reasons = ' '.join(reason_retrieved)
 
         # Add new sample
-        samples.append(LanguageData(id=index, subs=subs, q=q, kg=reasons, a1=a1, a2=a2, a3=a3, a4=a4, label=label))
+        samples.append(LanguageData(id=index, subs=subs, q=q, kg=reasons, a1=a1, a2=a2, a3=a3, a4=a4, label=label, caption=caption))
 
     return samples
 
@@ -192,9 +206,10 @@ def convert_to_input(samples, tokenizer, max_seq_length):
         subtitle = tokenizer.tokenize(sample.subtitles)
         question = tokenizer.tokenize(sample.question)
         kg = tokenizer.tokenize(sample.kg)
+        caption = tokenizer.tokenize(sample.caption)
         choices_features = []
         for answer_index, answer in enumerate(sample.answers):
-            context_tokens_choice = subtitle[:] + question[:]
+            context_tokens_choice = caption[:] + subtitle[:] + question[:]
             ending_tokens =  tokenizer.tokenize(answer) + kg[:]
             _truncate_seq_pair_inv(context_tokens_choice, ending_tokens, max_seq_length - 3)
 
@@ -263,7 +278,7 @@ def train(args, outdir):
         model = torch.nn.DataParallel(model)
 
     # Read data
-    samples_data = read_data('train')
+    samples_data = read_data(args, 'train')
     num_train_optimization_steps = int(len(samples_data) / args.batch_size) * args.num_train_epochs
     data_features = convert_to_input(samples_data, tokenizer, args.train_max_seq_len)
     logger.info("***** Running training of BertReasoning (language features) *****")
@@ -349,7 +364,7 @@ def compute_embeddings(args, modeldir, split):
     model.to(args.device)
 
     # Read data
-    samples_data = read_data(split)
+    samples_data = read_data(args, split)
     data_features = convert_to_input(samples_data, tokenizer, args.eval_max_seq_len)
     logger.info("***** Extracting language features *****")
     logger.info("  Num samples = %d", len(samples_data))
@@ -397,7 +412,7 @@ def evaluate(args, modeldir):
     model.to(args.device)
 
     # Read data
-    samples_data = read_data('test')
+    samples_data = read_data(args, 'test')
     data_features = convert_to_input(samples_data, tokenizer, args.eval_max_seq_len)
     logger.info("***** Computing only language evaluation *****")
     logger.info("  Num samples = %d", len(samples_data))
@@ -405,7 +420,8 @@ def evaluate(args, modeldir):
     all_input_mask = torch.tensor(select_field(data_features, 'input_mask'), dtype=torch.long)
     all_segment_ids = torch.tensor(select_field(data_features, 'segment_ids'), dtype=torch.long)
     all_labels = torch.tensor([f.label for f in data_features], dtype=torch.long)
-    eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_labels)
+    all_indices = torch.tensor([f.example_id for f in data_features], dtype=torch.long)
+    eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_labels, all_indices)
 
     eval_sampler = SequentialSampler(eval_data)
     eval_dataloader = DataLoader(eval_data, sampler=eval_sampler, batch_size=args.eval_batch_size)
@@ -415,6 +431,7 @@ def evaluate(args, modeldir):
         input_mask = inputs[1].to(args.device)
         segment_ids = inputs[2].to(args.device)
         label_this = inputs[3].to(args.device)
+        index_this = inputs[4]
 
         # Output of the model
         with torch.no_grad():
@@ -425,25 +442,41 @@ def evaluate(args, modeldir):
         if batch_idx==0:
             out = predicted.data.cpu().numpy()
             label = label_this.cpu().numpy()
+            index = index_this
         else:
             out = np.concatenate((out,predicted.data.cpu().numpy()),axis=0)
             label = np.concatenate((label,label_this.cpu().numpy()),axis=0)
+            index = np.concatenate((index, index_this), axis=0)
 
     # Compute Accuracy
     acc = np.sum(out == label)/len(out)
-    logger.info('Accuracy {acc}'.format(model=modeldir, acc=acc))
+    logger.info('*' *20)
+    logger.info('Model in %s' %modeldir)
+    df = pd.read_csv('Data/data_full_test_qtypes.csv', delimiter='\t')
+    utils.accuracy_perclass(df, out, label, index)
+    logger.info('Overall Accuracy\t%.03f' % acc)
+    logger.info('*' * 20)
+
 
 if __name__ == "__main__":
 
     args = get_params()
 
-    train_name = 'BertReasoning_topk%d_maxseq%d' % (args.topk, args.train_max_seq_len)
+    if args.use_captions:
+        train_name = 'AnswerPrediction_caption'
+        modelname = 'ROCK-caption-weights.pth.tar'
+    else:
+        train_name = 'BertReasoning_topk%d_maxseq%d' % (args.topk, args.train_max_seq_len)
+        modelname = 'pytorch_model.bin'
+
     outdir = os.path.join('Training/VideoReasoning/', train_name)
-    if not os.path.isfile(os.path.join(outdir, 'pytorch_model.bin')):
+    if not os.path.isfile(os.path.join(outdir, modelname)):
         train(args, outdir)
 
-    compute_embeddings(args, outdir, split = 'train')
-    compute_embeddings(args, outdir, split = 'val')
-    compute_embeddings(args, outdir, split = 'test')
+    if args.use_captions:
+        evaluate(args, outdir)
+    else:
+        compute_embeddings(args, outdir, split = 'train')
+        compute_embeddings(args, outdir, split = 'val')
+        compute_embeddings(args, outdir, split = 'test')
 
-    evaluate(args, outdir)

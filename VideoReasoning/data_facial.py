@@ -4,8 +4,6 @@ import pandas as pd
 import utils
 import csv
 import numpy as np
-import base64
-import sys
 import os
 import ast
 
@@ -38,7 +36,7 @@ class KnowITFacesData(data.Dataset):
         logger.info('File with %d samples' % len(df))
         self.num_samples = len(df)
         self.bert_embds = utils.load_obj(filebert)
-        self.framepaths = self.get_frame_paths('', df, numframes=args.numframes)
+        self.framepaths = utils.get_frame_paths('', df, numframes=args.numframes)
         self.labels = df['idxCorrect']
 
         # Faces per frame
@@ -64,19 +62,6 @@ class KnowITFacesData(data.Dataset):
         ind2pers.insert(0, 'unk')
         pers2ind = {c: i for i, c in enumerate(ind2pers)}
         return ind2pers, pers2ind
-
-
-    def get_frame_paths(self, basedir, df, numframes):
-        scenes = df['scene'].str.split('_')
-        paths = []
-        for s in scenes:
-            start = int(s[2])
-            end = int(s[3])
-            step = int((end - start) / numframes)
-            frame_paths = [basedir + s[0] + '/frame_' + str(start + step * (n + 1)).zfill(4) + '.jpeg' for n in
-                           list(range(numframes))]
-            paths.append(frame_paths)
-        return paths
 
 
     def __len__(self):

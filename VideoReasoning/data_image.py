@@ -32,23 +32,12 @@ class KnowITImageData(data.Dataset):
         df = pd.read_csv(csvfile, delimiter='\t')
         logger.info('Data file loaded with %d samples' % len(df))
         self.bert_embds = utils.load_obj(filebertembs)
-        self.framepaths = self.get_frame_paths(args.framesdir, df, numframes=args.numframes)
+        self.framepaths = utils.get_frame_paths(args.framesdir, df, numframes=args.numframes)
         self.labels = df['idxCorrect']
 
         # Size dataset
         self.num_samples = len(df)
 
-    def get_frame_paths(self, basedir, df, numframes):
-        scenes = df['scene'].str.split('_')
-        paths = []
-        for s in scenes:
-            start = int(s[2])
-            end = int(s[3])
-            step = int((end - start) / numframes)
-            frame_paths = [basedir + s[0] + '/frame_' + str(start + step * (n + 1)).zfill(4) + '.jpeg' for n in
-                           list(range(numframes))]
-            paths.append(frame_paths)
-        return paths
 
     def __len__(self):
         return self.num_samples

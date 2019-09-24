@@ -46,7 +46,7 @@ def get_params():
     parser.add_argument('--facesframes', default='Faces/knowit_knn_cnn_th060.tsv')
 
     # Data params
-    parser.add_argument('--vision', default='image', help='image | concepts | facial | caption')
+    parser.add_argument('--vision', default='image', help='image | concepts | facial')
     parser.add_argument('--numframes', type=int, default=5)
     parser.add_argument('--img_space', type=int, default=512)
     parser.add_argument('--bert_emb_size', type=int, default=768)
@@ -68,45 +68,6 @@ def get_params():
     parser.add_argument('--no_cuda', action='store_true')
 
     return parser.parse_args()
-
-
-def accuracy_perclass(df, out, label, index):
-
-    qtypes = df['QType'].to_list()
-
-    acc_vis, acc_text, acc_tem, acc_know = 0, 0, 0, 0
-    num_vis, num_text, num_tem, num_know = 0, 0, 0, 0
-
-    for o, l, i in zip(out, label, index):
-
-        qtype = qtypes[i]
-
-        if qtype == 'visual':
-            num_vis += 1
-            if o == l:
-                acc_vis += 1
-        elif qtype == 'textual':
-            num_text += 1
-            if o == l :
-                acc_text += 1
-        elif qtype == 'temporal':
-            num_tem += 1
-            if o == l:
-                acc_tem += 1
-        elif qtype == 'knowledge':
-            num_know += 1
-            if o == l:
-                acc_know += 1
-
-    acc_vis = acc_vis / num_vis
-    acc_text = acc_text / num_text
-    acc_tem = acc_tem / num_tem
-    acc_know = acc_know / num_know
-
-    logger.info("Acc visual samples\t%.03f", acc_vis)
-    logger.info("Acc textual samples\t%.03f", acc_text)
-    logger.info("Acc temporal samples\t%.03f", acc_tem)
-    logger.info("Acc knowledge samples\t%.03f", acc_know)
 
 
 def trainEpoch(train_loader, model, criterion, optimizer, epoch):
@@ -380,7 +341,7 @@ def evaluate(args, modeldir, modelname):
     logger.info('*' *20)
     logger.info('Model in %s' %modeldir)
     df = pd.read_csv('Data/data_full_test_qtypes.csv', delimiter='\t')
-    accuracy_perclass(df, out, label, index)
+    utils.accuracy_perclass(df, out, label, index)
     logger.info('Overall Accuracy\t%.03f' % acc)
     logger.info('*' * 20)
 

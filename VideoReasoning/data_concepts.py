@@ -41,7 +41,7 @@ class KnowITConceptsData(data.Dataset):
         logger.info('File with %d samples' % len(df))
         self.num_samples = len(df)
         self.bert_embds = utils.load_obj(filebert)
-        self.framepaths = self.get_frame_paths('', df, numframes=args.numframes)
+        self.framepaths = utils.get_frame_paths('', df, numframes=args.numframes)
         self.labels = df['idxCorrect']
 
         # Size dataset
@@ -85,19 +85,6 @@ class KnowITConceptsData(data.Dataset):
         ind2obj.insert(0, 'unk')
         obj2ind = {c : i for i, c in enumerate(ind2obj)}
         return ind2obj, obj2ind
-
-
-    def get_frame_paths(self, basedir, df, numframes):
-        scenes = df['scene'].str.split('_')
-        paths = []
-        for s in scenes:
-            start = int(s[2])
-            end = int(s[3])
-            step = int((end - start) / numframes)
-            frame_paths = [basedir + s[0] + '/frame_' + str(start + step * (n + 1)).zfill(4) + '.jpeg' for n in
-                           list(range(numframes))]
-            paths.append(frame_paths)
-        return paths
 
 
     def string2list(self, s):

@@ -86,6 +86,10 @@ Visual concepts were generated with [this code](https://github.com/peteanderson8
 [here](www.noagarciad.com/data/ROCK/knowit_knn_cnn_th060.tsv)  (240.3MB) and save the file in `Data/Faces/`. 
 Character faces were recognized with [this code](https://github.com/ageitgey/face_recognition).
 
+5. (For `ROCK-caption` only) Download the pre-computed captions per frame from 
+[here](www.noagarciad.com/data/ROCK/knowit_captions.csv)  (21.1MB) and save the file in `Data/Captions/`. 
+Captions were generated with [this code](https://github.com/DeepRNN/image_captioning).
+
 ##### Model training and evaluation
 
 - For `ROCK-image`:
@@ -106,6 +110,12 @@ python VideoReasoning/process.py --vision concepts
 python VideoReasoning/process.py --vision facial
 ``` 
 
+- For `ROCK-caption`:
+
+```
+python VideoReasoning/language_embeddings.py --use_captions
+``` 
+
 ##### Pretrained weigths
 
 You can download the weights of our pretrained models:
@@ -118,20 +128,16 @@ You can download the weights of our pretrained models:
 More coming soon...
 
 - [x] Language embeddings (BertReasoning model)
-- [x] Image features
 - [x] Answer prediction for image features
-- [x] Concept features
 - [x] Answer prediction for concept features
-- [x] Facial features
 - [x] Answer prediction for facial features
-- [ ] Caption features
-- [ ] Answer prediction for caption features
-- [ ] Check retrieval results
-- [ ] Check only language results
-- [ ] Check image results
-- [ ] Check facial results
-- [ ] Check concepts results
-- [ ] Check captions results
+- [x] Answer prediction for caption features
+- [ ] Check retrieval module
+- [ ] Check language embeddings module
+- [ ] Check ROCK-image module
+- [ ] Check ROCK-concepts results
+- [ ] Check ROCK-facial results
+- [ ] Check ROCK-captions results
     
 
 
