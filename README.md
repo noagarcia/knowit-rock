@@ -120,6 +120,8 @@ python VideoReasoning/language_embeddings.py --use_captions
 
 You can download the weights of our pretrained models:
 
+- `BertReasoning` from [here](www.noagarciad.com/data/ROCK/BertReasoning_topk5_maxseq256/pytorch_model.bin). Save the file in `Training/VideoReasoning/BertReasoning_topk5_maxseq256`.
+
 - `ROCK-image` from [here](www.noagarciad.com/data/ROCK/ROCK-image-weights.pth.tar). Save the files in `Training/VideoReasoning/AnswerPrediction_image`.
 
 

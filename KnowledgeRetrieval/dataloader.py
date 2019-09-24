@@ -2,8 +2,11 @@ import torch.utils.data as data
 import os
 import torch
 import numpy as np
-import utils
 import pandas as pd
+
+import sys
+sys.path.insert(0,'.')
+import utils
 
 
 import logging

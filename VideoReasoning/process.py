@@ -3,7 +3,6 @@
 import argparse
 import os
 import random
-import sys
 
 import numpy as np
 import torch
@@ -12,6 +11,8 @@ from torch import nn
 import pandas as pd
 from torchvision import transforms
 
+import sys
+sys.path.insert(0,'.')
 import utils
 from data_image import KnowITImageData
 from data_concepts import KnowITConceptsData

@@ -8,7 +8,6 @@ from io import open
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
-from torch import nn
 from tqdm import tqdm, trange
 
 from pytorch_pretrained_bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
@@ -16,6 +15,8 @@ from pytorch_pretrained_bert.modeling import BertConfig, WEIGHTS_NAME, CONFIG_NA
 from pytorch_pretrained_bert.optimization import BertAdam
 from pytorch_pretrained_bert.tokenization import BertTokenizer
 
+import sys
+sys.path.insert(0,'.')
 import utils
 from rank import rank
 from model import BertScoring

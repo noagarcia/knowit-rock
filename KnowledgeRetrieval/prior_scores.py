@@ -6,6 +6,9 @@ import os
 import random
 from io import open
 import pandas as pd
+
+import sys
+sys.path.insert(0,'.')
 import utils
 
 import numpy as np

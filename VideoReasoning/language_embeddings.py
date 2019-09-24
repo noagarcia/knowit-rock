@@ -19,8 +19,10 @@ logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s -   %(messa
                     level = logging.INFO)
 logger = logging.getLogger(__name__)
 
-import utils
 import re
+import sys
+sys.path.insert(0,'.')
+import utils
 
 
 def get_params():
@@ -469,7 +471,8 @@ if __name__ == "__main__":
         train_name = 'BertReasoning_topk%d_maxseq%d' % (args.topk, args.train_max_seq_len)
         modelname = 'pytorch_model.bin'
 
-    outdir = os.path.join('Training/VideoReasoning/', train_name)
+    # outdir = os.path.join('Training/VideoReasoning/', train_name)
+    outdir = '/home/noa/Projects/drama_vqa/VQA_baselines/Training/ForEmbeddings/SubsQ+AR_Bert_MC_finetuned_maxseq256_inv_5topk'
     if not os.path.isfile(os.path.join(outdir, modelname)):
         train(args, outdir)
 
@@ -479,4 +482,3 @@ if __name__ == "__main__":
         compute_embeddings(args, outdir, split = 'train')
         compute_embeddings(args, outdir, split = 'val')
         compute_embeddings(args, outdir, split = 'test')
-

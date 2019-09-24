@@ -1,12 +1,14 @@
 import torch
 import torch.utils.data as data
 import pandas as pd
-import utils
 import csv
 import numpy as np
-import sys
 import os
 import ast
+
+import sys
+sys.path.insert(0,'.')
+import utils
 
 
 import logging

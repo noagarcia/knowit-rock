@@ -1,6 +1,9 @@
 import torch.utils.data as data
 import pandas as pd
 from PIL import Image
+
+import sys
+sys.path.insert(0,'.')
 import utils
 
 import logging
