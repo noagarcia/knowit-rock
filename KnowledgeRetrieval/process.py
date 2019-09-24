@@ -186,9 +186,9 @@ def evaluate(args, outdir, split):
 
         batch_idx += 1
 
-    utils.save_obj(scores1, os.path.join(args.data_dir, '/retieval_scores_%s.pckl' % split))
-    utils.save_obj(idxq, os.path.join(args.data_dir, '/retrieval_idxq_%s.pckl' % split))
-    utils.save_obj(labels, os.path.join(args.data_dir, '/retrieval_labels_%s.pckl' % split))
+    utils.save_obj(scores1, os.path.join(args.data_dir, 'retieval_scores_%s.pckl' % split))
+    utils.save_obj(idxq, os.path.join(args.data_dir, 'retrieval_idxq_%s.pckl' % split))
+    utils.save_obj(labels, os.path.join(args.data_dir, 'retrieval_labels_%s.pckl' % split))
     medR1, recall1, medR2, recall2 = rank(scores1, scores2, idxq, labels)
     logger.info('Accuracy medR {medR:.2f}\t Recall {recall}'.format(medR=medR1, recall=recall1))
 
@@ -204,7 +204,7 @@ if __name__ == "__main__":
         plotter = utils.VisdomLinePlotter(env_name=train_name)
         train(args, outdir)
 
-    if not os.path.exists(os.path.join(args.data_dir, '/retieval_scores_test.pckl')):
+    if not os.path.exists(os.path.join(args.data_dir, 'retieval_scores_test.pckl')):
         evaluate(args, outdir, split='test')
-    if not os.path.exists(os.path.join(args.data_dir, '/retieval_scores_val.pckl')):
+    if not os.path.exists(os.path.join(args.data_dir, 'retieval_scores_val.pckl')):
         evaluate(args, outdir, split='val')
