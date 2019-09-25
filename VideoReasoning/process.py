@@ -362,7 +362,7 @@ if __name__ == "__main__":
     elif args.vision == 'concepts':
         modelname = 'ROCK-concepts-weights.pth.tar'
     elif args.vision == 'facial':
-        modelname = 'ROCK-concepts-weights.pth.tar'
+        modelname = 'ROCK-facial-weights.pth.tar'
 
     # Training
     if not os.path.isfile(os.path.join(outdir, modelname)):

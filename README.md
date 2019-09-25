@@ -118,12 +118,29 @@ python VideoReasoning/language_embeddings.py --use_captions
 
 ##### Pretrained weigths
 
-You can download the weights of our pretrained models:
+Our pretrained models are available to download from:
 
 - `BertReasoning` from [here](www.noagarciad.com/data/ROCK/BertReasoning_topk5_maxseq256/pytorch_model.bin). Save the file in `Training/VideoReasoning/BertReasoning_topk5_maxseq256`.
 
-- `ROCK-image` from [here](www.noagarciad.com/data/ROCK/ROCK-image-weights.pth.tar). Save the files in `Training/VideoReasoning/AnswerPrediction_image`.
+- `ROCK-image` from [here](www.noagarciad.com/data/ROCK/ROCK-image-weights.pth.tar). Save the file in `Training/VideoReasoning/AnswerPrediction_image`.
 
+- `ROCK-concepts` from [here](www.noagarciad.com/data/ROCK/ROCK-concepts-weights.pth.tar). Save the file in `Training/VideoReasoning/AnswerPrediction_concepts`.
+
+- `ROCK-facial` from [here](www.noagarciad.com/data/ROCK/ROCK-facial-weights.pth.tar). Save the file in `Training/VideoReasoning/AnswerPrediction_facial`.
+
+- `ROCK-caption` from [here](www.noagarciad.com/data/ROCK/ROCK-caption-weights.pth.tar). Save the file in `Training/VideoReasoning/AnswerPrediction_caption`.
+
+
+### Results
+
+Accuracy on the KnowIT VQA dataset:
+
+| Model     | Vis.  | Text. | Temp.  | Know. | All |
+| -------   | ----: | ----: | -----: | ----: | ---: |
+| `ROCK-image` | 0.658 | 0.703 | 0.628 | 0.644 | 0.654 |
+| `ROCK-concepts` | 0.658 | 0.703 | 0.628 | 0.645 | 0.654 |
+| `ROCK-facial` | 0.658 | 0.703 | 0.628 | 0.644 | 0.654 | 
+| `ROCK-caption` | 0.639 | 0.674 | 0.605 | 0.628 | 0.635 |
 
 ### TODO
 
@@ -134,12 +151,12 @@ More coming soon...
 - [x] Answer prediction for concept features
 - [x] Answer prediction for facial features
 - [x] Answer prediction for caption features
+- [x] Check ROCK-image module
+- [x] Check ROCK-concepts results
+- [x] Check ROCK-facial results
+- [x] Check ROCK-captions results
 - [ ] Check retrieval module
 - [ ] Check language embeddings module
-- [ ] Check ROCK-image module
-- [ ] Check ROCK-concepts results
-- [ ] Check ROCK-facial results
-- [ ] Check ROCK-captions results
     
 
 

@@ -9,7 +9,7 @@ from tqdm import tqdm, trange
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler, TensorDataset
-from pytorch_pretrained_bert.modeling import BertConfig, WEIGHTS_NAME, CONFIG_NAME, PreTrainedBertModel, BertModel
+from pytorch_pretrained_bert.modeling import BertConfig, CONFIG_NAME, PreTrainedBertModel, BertModel
 from pytorch_pretrained_bert.tokenization import BertTokenizer
 from pytorch_pretrained_bert.optimization import BertAdam, warmup_linear
 from pytorch_pretrained_bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
@@ -256,7 +256,7 @@ def select_field(features, field):
     ]
 
 
-def train(args, outdir):
+def train(args, outdir, modelname):
 
     # Set GPU
     n_gpu = torch.cuda.device_count()
@@ -339,14 +339,14 @@ def train(args, outdir):
 
     # Save a trained model and the associated configuration
     model_to_save = model.module if hasattr(model, 'module') else model  # Only save the model it-self
-    output_model_file = os.path.join(outdir, WEIGHTS_NAME)
+    output_model_file = os.path.join(outdir, modelname)
     torch.save(model_to_save.state_dict(), output_model_file)
     output_config_file = os.path.join(outdir, CONFIG_NAME)
     with open(output_config_file, 'w') as f:
         f.write(model_to_save.config.to_json_string())
 
 
-def compute_embeddings(args, modeldir, split):
+def compute_embeddings(args, modeldir, modelname, split):
 
     # Compute embeddings only if they have not been computed yet
     filedir = os.path.join(args.data_dir, 'Features/')
@@ -358,7 +358,7 @@ def compute_embeddings(args, modeldir, split):
 
     # Load model
     tokenizer = BertTokenizer.from_pretrained(args.bert_model, do_lower_case=args.do_lower_case)
-    output_model_file = os.path.join(modeldir, WEIGHTS_NAME)
+    output_model_file = os.path.join(modeldir, modelname)
     output_config_file = os.path.join(modeldir, CONFIG_NAME)
     config = BertConfig(output_config_file)
     model = BertForMultipleChoiceFeatures(config, num_choices=4)
@@ -400,13 +400,13 @@ def compute_embeddings(args, modeldir, split):
     utils.save_obj(feat, embsfile)
 
 
-def evaluate(args, modeldir):
+def evaluate(args, modeldir, modelname):
 
     args.eval_batch_size = 64
 
     # Load model
     tokenizer = BertTokenizer.from_pretrained(args.bert_model, do_lower_case=args.do_lower_case)
-    output_model_file = os.path.join(modeldir, WEIGHTS_NAME)
+    output_model_file = os.path.join(modeldir, modelname)
     output_config_file = os.path.join(modeldir, CONFIG_NAME)
     config = BertConfig(output_config_file)
     model = BertForMultipleChoiceFeatures(config, num_choices=4)
@@ -471,14 +471,13 @@ if __name__ == "__main__":
         train_name = 'BertReasoning_topk%d_maxseq%d' % (args.topk, args.train_max_seq_len)
         modelname = 'pytorch_model.bin'
 
-    # outdir = os.path.join('Training/VideoReasoning/', train_name)
-    outdir = '/home/noa/Projects/drama_vqa/VQA_baselines/Training/ForEmbeddings/SubsQ+AR_Bert_MC_finetuned_maxseq256_inv_5topk'
+    outdir = os.path.join('Training/VideoReasoning/', train_name)
     if not os.path.isfile(os.path.join(outdir, modelname)):
-        train(args, outdir)
+        train(args, outdir, modelname)
 
     if args.use_captions:
-        evaluate(args, outdir)
+        evaluate(args, outdir, modelname)
     else:
-        compute_embeddings(args, outdir, split = 'train')
-        compute_embeddings(args, outdir, split = 'val')
-        compute_embeddings(args, outdir, split = 'test')
+        compute_embeddings(args, outdir, modelname, split = 'train')
+        compute_embeddings(args, outdir, modelname, split = 'val')
+        compute_embeddings(args, outdir, modelname, split = 'test')
