@@ -157,6 +157,8 @@ More coming soon...
 - [x] Check ROCK-captions results
 - [ ] Check retrieval module
 - [ ] Check language embeddings module
+- [ ] Add citation
+- [ ] Add dataset link
     
 
 

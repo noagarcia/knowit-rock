@@ -161,7 +161,11 @@ def evaluate(args, outdir, split):
     logger.info("  Num examples = %d", eval_dataloader.__len__())
     logger.info("  Batch size = %d", args.eval_batch_size)
     model.eval()
-    batch_idx = 0
+    scores1 = np.zeros((evalDataObject.num_samples,1))
+    scores2 = np.zeros((evalDataObject.num_samples, 1))
+    idxq = np.zeros((evalDataObject.num_samples, 1))
+    labels = np.zeros((evalDataObject.num_samples, 1))
+    firstidx = 0
     for _, batch in enumerate(tqdm(eval_dataloader, desc="Iteration")):
         input_ids, input_mask, segment_ids, id_q, truelabel = batch
         input_ids = input_ids.to(args.device)
@@ -172,19 +176,13 @@ def evaluate(args, outdir, split):
             scores = model(input_ids, segment_ids, input_mask)
 
         scores = scores.detach().cpu().numpy()
+        numSamplesBatch =  truelabel.numpy().shape[0]
+        scores1[firstidx:firstidx+numSamplesBatch,0] = scores[:,0]
+        scores2[firstidx:firstidx + numSamplesBatch,0] = scores[:,1]
+        idxq[firstidx:firstidx + numSamplesBatch,0] = id_q.numpy()
+        labels[firstidx:firstidx + numSamplesBatch,0] = truelabel.numpy()
+        firstidx = firstidx + numSamplesBatch
 
-        if batch_idx == 0:
-            scores1 = scores[:,0]
-            scores2 = scores[:,1]
-            idxq = id_q.numpy()
-            labels = truelabel.numpy()
-        else:
-            scores1 = np.concatenate((scores1, scores[:,0]), axis=0)
-            scores2 = np.concatenate((scores2, scores[:,1]), axis=0)
-            idxq = np.concatenate((idxq, id_q.numpy()), axis=0)
-            labels = np.concatenate((labels, truelabel.numpy()), axis=0)
-
-        batch_idx += 1
 
     utils.save_obj(scores1, os.path.join(args.data_dir, 'retieval_scores_%s.pckl' % split))
     utils.save_obj(idxq, os.path.join(args.data_dir, 'retrieval_idxq_%s.pckl' % split))
