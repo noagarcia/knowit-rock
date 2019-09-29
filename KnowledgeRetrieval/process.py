@@ -206,3 +206,5 @@ if __name__ == "__main__":
         evaluate(args, outdir, split='test')
     if not os.path.exists(os.path.join(args.data_dir, 'retieval_scores_val.pckl')):
         evaluate(args, outdir, split='val')
+    if not os.path.exists(os.path.join(args.data_dir, 'retieval_scores_train.pckl')):
+        evaluate(args, outdir, split='train')

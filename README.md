@@ -155,7 +155,7 @@ More coming soon...
 - [x] Check ROCK-concepts results
 - [x] Check ROCK-facial results
 - [x] Check ROCK-captions results
-- [ ] Check retrieval module
+- [x] Check retrieval module
 - [ ] Check language embeddings module
 - [ ] Add citation
 - [ ] Add dataset link
