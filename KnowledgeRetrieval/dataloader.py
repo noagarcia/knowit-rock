@@ -44,13 +44,14 @@ def truncate_seq_pair(tokens_a, tokens_b, max_length):
 
 class RetrievalDataset(data.Dataset):
 
-    def __init__(self, args, split, tokenizer):
+    def __init__(self, args, split, tokenizer, istrain = False):
 
         # Params
         self.args = args
         self.split = split
         self.tokenizer = tokenizer
         self.max_seq_length = args.max_seq_length
+        self.istrain = istrain
 
         # Load Data
         if self.split == 'train':
@@ -100,7 +101,7 @@ class RetrievalDataset(data.Dataset):
             answer4 = df['answer{}'.format(idxsort[3] + 1)].iloc[idx_q]
 
             # at training time we pick num_pairs reasons for each question
-            if self.split == 'train':
+            if self.istrain:
 
                 # Matching knowledge
                 reason_pos = self.kb[cluster_pos]

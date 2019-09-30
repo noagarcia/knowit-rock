@@ -74,7 +74,7 @@ def train(args, outdir):
         model = torch.nn.DataParallel(model)
 
     # Load data
-    trainDataObject = RetrievalDataset(args, split='train', tokenizer=tokenizer)
+    trainDataObject = RetrievalDataset(args, split='train', tokenizer=tokenizer, istrain=True)
     train_dataloader = torch.utils.data.DataLoader(trainDataObject, batch_size=args.batch_size, shuffle=True,
                                                pin_memory=True, num_workers=args.workers)
     num_train_optimization_steps = int(trainDataObject.num_samples / args.batch_size) * args.num_train_epochs
@@ -152,7 +152,7 @@ def evaluate(args, outdir, split):
         model = torch.nn.DataParallel(model)
 
     # Data
-    evalDataObject = RetrievalDataset(args, split=split, tokenizer=tokenizer)
+    evalDataObject = RetrievalDataset(args, split=split, tokenizer=tokenizer, istrain=False)
     eval_dataloader = torch.utils.data.DataLoader(evalDataObject, batch_size=args.batch_size, shuffle=False,
                                                pin_memory=True, num_workers=args.workers)
 
