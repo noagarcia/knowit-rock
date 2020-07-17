@@ -65,7 +65,7 @@ sh KnowledgeRetrieval/run.sh
 The BertScoring model is saved in `Training/KnowledgeRetrieval/`.
 
 **Note**: The matching scores for test and validation sets take a long time to compute.
- You can download our pre-computed scores from [here](http://www.noagarciad.com/data/ROCK/rock-retrieval-scores.zip) and save them in `Data/`.
+ You can download our pre-computed scores from [here](https://knowit-vqa.s3-ap-northeast-1.amazonaws.com/ROCK/rock-retrieval-scores.zip) and save them in `Data/`.
 
 
 ### Video Reasoning
@@ -80,16 +80,15 @@ We proposed 4 different models using different visual features extracted from th
 
 2. Compute language embeddings: `python VideoReasoning/language_embeddings.py`
 
-3. (For `ROCK-concepts` only) Download the pre-computed visual concepts (77.2GB) from the server 
-(`apas:/home/noagarcia/ROCK-concepts`) and save the file in `Data/Concepts/`. 
+3. (For `ROCK-concepts` only) Download the pre-computed visual concepts (77.2GB) from [here](https://knowit-vqa.s3-ap-northeast-1.amazonaws.com/ROCK/knowit_resnet101_faster_rcnn_genome_vcps_all.tsv) and save the file in `Data/Concepts/`. 
 Visual concepts were generated with [this code](https://github.com/peteanderson80/bottom-up-attention).
 
 4. (For `ROCK-facial` only) Download the pre-computed list of faces per frame from 
-[here](http://www.noagarciad.com/data/ROCK/knowit_knn_cnn_th060.tsv)  (240.3MB) and save the file in `Data/Faces/`. 
+[here](https://knowit-vqa.s3-ap-northeast-1.amazonaws.com/ROCK/knowit_knn_cnn_th060.tsv)  (240.3MB) and save the file in `Data/Faces/`. 
 Character faces were recognized with [this code](https://github.com/ageitgey/face_recognition).
 
 5. (For `ROCK-caption` only) Download the pre-computed captions per frame from 
-[here](http://www.noagarciad.com/data/ROCK/knowit_captions.csv)  (21.1MB) and save the file in `Data/Captions/`. 
+[here](https://knowit-vqa.s3-ap-northeast-1.amazonaws.com/ROCK/knowit_captions.csv)  (21.1MB) and save the file in `Data/Captions/`. 
 Captions were generated with [this code](https://github.com/DeepRNN/image_captioning).
 
 ##### Model training and evaluation
@@ -122,15 +121,15 @@ python VideoReasoning/language_embeddings.py --use_captions
 
 Our pretrained models are available to download from:
 
-- `BertReasoning` from [here](http://www.noagarciad.com/data/ROCK/BertReasoning_topk5_maxseq256/pytorch_model.bin). Save the file in `Training/VideoReasoning/BertReasoning_topk5_maxseq256`.
+- `BertReasoning` from [here](https://knowit-vqa.s3-ap-northeast-1.amazonaws.com/ROCK/Models/BertReasoning_topk5_maxseq256.zip). Save the files in `Training/VideoReasoning/BertReasoning_topk5_maxseq256`.
 
-- `ROCK-image` from [here](http://www.noagarciad.com/data/ROCK/ROCK-image-weights.pth.tar). Save the file in `Training/VideoReasoning/AnswerPrediction_image`.
+- `ROCK-image` from [here](https://knowit-vqa.s3-ap-northeast-1.amazonaws.com/ROCK/Models/AnswerPrediction_image.zip). Save the files in `Training/VideoReasoning/AnswerPrediction_image`.
 
-- `ROCK-concepts` from [here](http://www.noagarciad.com/data/ROCK/ROCK-concepts-weights.pth.tar). Save the file in `Training/VideoReasoning/AnswerPrediction_concepts`.
+- `ROCK-concepts` from [here](https://knowit-vqa.s3-ap-northeast-1.amazonaws.com/ROCK/Models/AnswerPrediction_concepts.zip). Save the files in `Training/VideoReasoning/AnswerPrediction_concepts`.
 
-- `ROCK-facial` from [here](http://www.noagarciad.com/data/ROCK/ROCK-facial-weights.pth.tar). Save the file in `Training/VideoReasoning/AnswerPrediction_facial`.
+- `ROCK-facial` from [here](https://knowit-vqa.s3-ap-northeast-1.amazonaws.com/ROCK/Models/AnswerPrediction_facial.zip). Save the files in `Training/VideoReasoning/AnswerPrediction_facial`.
 
-- `ROCK-caption` from [here](http://www.noagarciad.com/data/ROCK/ROCK-caption-weights.pth.tar). Save the file in `Training/VideoReasoning/AnswerPrediction_caption`.
+- `ROCK-caption` from [here](https://knowit-vqa.s3-ap-northeast-1.amazonaws.com/ROCK/Models/AnswerPrediction_caption.zip). Save the files in `Training/VideoReasoning/AnswerPrediction_caption`.
 
 
 ### Results
