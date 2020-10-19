@@ -33,9 +33,9 @@ def get_params():
 
     # Data
     parser.add_argument("--data_dir", default='Data/', type=str)
-    parser.add_argument('--csvtrain', default='data_full_train.csv', help='Training set data file')
-    parser.add_argument('--csvval', default='data_full_val.csv', help='Dataset val data file')
-    parser.add_argument('--csvtest', default='data_full_test_qtypes.csv', help='Dataset test data file')
+    parser.add_argument('--csvtrain', default='knowit_data_train.csv', help='Training set data file')
+    parser.add_argument('--csvval', default='knowit_data_val.csv', help='Dataset val data file')
+    parser.add_argument('--csvtest', default='knowit_data_test.csv', help='Dataset test data file')
     parser.add_argument('--bertembds_ftrain', default='Features/language_bert_train.pckl')
     parser.add_argument('--bertembds_fval', default='Features/language_bert_val.pckl')
     parser.add_argument('--bertembds_ftest', default='Features/language_bert_test.pckl')
@@ -341,7 +341,7 @@ def evaluate(args, modeldir, modelname):
     acc = np.sum(out == label)/len(out)
     logger.info('*' *20)
     logger.info('Model in %s' %modeldir)
-    df = pd.read_csv('Data/data_full_test_qtypes.csv', delimiter='\t')
+    df = pd.read_csv('Data/knowit_data_test.csv', delimiter='\t')
     utils.accuracy_perclass(df, out, label, index)
     logger.info('Overall Accuracy\t%.03f' % acc)
     logger.info('*' * 20)

@@ -20,9 +20,9 @@ logger = logging.getLogger(__name__)
 def get_params():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_dir", default='Data/', type=str)
-    parser.add_argument('--csvtrain', default='data_full_train.csv', help='Training set data file')
-    parser.add_argument('--csvval', default='data_full_val.csv', help='Dataset val data file')
-    parser.add_argument('--csvtest', default='data_full_test_qtypes.csv', help='Dataset test data file')
+    parser.add_argument('--csvtrain', default='knowit_data_train.csv', help='Training set data file')
+    parser.add_argument('--csvval', default='knowit_data_val.csv', help='Dataset val data file')
+    parser.add_argument('--csvtest', default='knowit_data_test.csv', help='Dataset test data file')
     parser.add_argument('--embsfile', default='cache/kb_allreasons_60len.pckl')
     return parser
 
